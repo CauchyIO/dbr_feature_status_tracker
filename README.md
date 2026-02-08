@@ -1,5 +1,7 @@
 # Databricks Feature Preview Status Tracker
 
+> **Disclaimer:** This repository is an independent, automated aggregation of Databricks preview feature information. Feature data is collected from two sources: the Databricks workspace/account preview pages as seen in the browser and the Azure Databricks documentation on Microsoft Learn. All descriptions are copied verbatim from their respective sources. However, the feature names — particularly those sourced from the documentation — are derived from navigation titles and page headings, which may not exactly match the official feature name as used by Databricks. This overview is provided as-is for informational purposes only; no rights can be derived from it. Always consult the [official Databricks documentation](https://learn.microsoft.com/en-gb/azure/databricks/) and your workspace's Previews page as the authoritative source.
+
 Tracks Databricks preview features across workspace and account scopes, combining automated API scraping with documentation analysis and LLM-powered classification.
 
 
