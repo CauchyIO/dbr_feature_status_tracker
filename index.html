@@ -206,6 +206,49 @@
         }
         .stat-card .number { font-size: 1.4rem; font-weight: 700; }
         .stat-card .label { font-size: 0.75rem; color: #8b949e; margin-top: 2px; }
+
+        /* SLA reference table */
+        .sla-explainer {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 0.82rem;
+            color: #8b949e;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .sla-explainer summary {
+            cursor: pointer;
+            color: #e6edf3;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .sla-explainer summary:hover { color: #58a6ff; }
+        .sla-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 0.8rem;
+        }
+        .sla-table th {
+            background: #0d1117;
+            color: #e6edf3;
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid #30363d;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .sla-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #21262d;
+            vertical-align: top;
+            color: #8b949e;
+        }
+        .sla-table td:last-child { font-size: 0.78rem; max-width: 420px; }
+        .sla-table .yes { color: #3fb950; font-weight: 600; }
+        .sla-table .no { color: #f85149; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -238,6 +281,96 @@
             <li>Giscus is <a href="https://github.com/giscus/giscus" style="color:#58a6ff">fully open source</a> and stores no data itself. Everything lives in GitHub Discussions.</li>
             <li>You can <strong>revoke access</strong> at any time from <a href="https://github.com/settings/apps/authorizations" style="color:#58a6ff">GitHub &rarr; Settings &rarr; Applications</a>.</li>
         </ul>
+    </details>
+
+    <details class="sla-explainer">
+        <summary>Release types &amp; SLA coverage</summary>
+        <table class="sla-table">
+            <thead>
+                <tr>
+                    <th>Release Type</th>
+                    <th>Who Can Use?</th>
+                    <th>Production?</th>
+                    <th>Interface Stable?</th>
+                    <th>SLA</th>
+                    <th>Support</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge badge-private-preview">PRIVATE_PREVIEW</span></td>
+                    <td>Invite only</td>
+                    <td class="no">No</td>
+                    <td class="no">No</td>
+                    <td class="no">No</td>
+                    <td>Engineering team</td>
+                    <td>Available by invite-only for a small set of customers. Previews are <strong>off</strong> by default. Admins can enable or disable the preview in workspaces. Often no accompanying documentation.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-beta">BETA</span></td>
+                    <td>Most customers</td>
+                    <td class="no">No</td>
+                    <td class="no">No</td>
+                    <td class="no">No</td>
+                    <td>Engineering team</td>
+                    <td>Available to most customers. For Premium customers, Beta features are <strong>on</strong> by default. For Enterprise customers, Beta features are <strong>off</strong> by default. Admins can enable or disable on workspaces. Intended to advance to Public Preview or GA.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-experimental">EXPERIMENTAL</span></td>
+                    <td>Everyone</td>
+                    <td class="no">No</td>
+                    <td class="no">No</td>
+                    <td class="no">No</td>
+                    <td>Engineering team</td>
+                    <td>Documented in Databricks documentation. The API might change.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-public-preview">PUBLIC_PREVIEW</span></td>
+                    <td>Everyone</td>
+                    <td class="yes">Yes</td>
+                    <td class="yes">Yes</td>
+                    <td class="yes">Yes</td>
+                    <td>Support team</td>
+                    <td>Available to all customers. Admins can opt out by disabling in workspaces. Features are documented and stable, intended to advance to GA. A notification appears in the UI if GA is approaching soon.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-ga">GA</span></td>
+                    <td>Everyone</td>
+                    <td class="yes">Yes</td>
+                    <td class="yes">Yes</td>
+                    <td class="yes">Yes</td>
+                    <td>Support team</td>
+                    <td>Generally available to all customers. Fully supported and production-ready.</td>
+                </tr>
+            </tbody>
+        </table>
+    </details>
+
+    <details class="sla-explainer">
+        <summary>What do the Source values mean?</summary>
+        <table class="sla-table">
+            <thead>
+                <tr>
+                    <th>Source</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Docs</strong></td>
+                    <td>Scraped from the Azure Databricks documentation on Microsoft Learn.</td>
+                </tr>
+                <tr>
+                    <td><strong>Workspace</strong></td>
+                    <td>Scraped from the workspace-level Previews page in Databricks.</td>
+                </tr>
+                <tr>
+                    <td><strong>Account</strong></td>
+                    <td>Scraped from the account-level Previews page in Databricks.</td>
+                </tr>
+            </tbody>
+        </table>
     </details>
 
     <div class="stats" id="stats"></div>
