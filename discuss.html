@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discuss Feature</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            padding: 24px;
+        }
+        .back { color: #58a6ff; text-decoration: none; font-size: 0.85rem; }
+        .back:hover { text-decoration: underline; }
+        h1 { font-size: 1.4rem; margin: 16px 0 8px; }
+        .meta { color: #8b949e; font-size: 0.85rem; margin-bottom: 24px; }
+        .meta a { color: #58a6ff; text-decoration: none; }
+        .meta a:hover { text-decoration: underline; }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+        .badge-ga { background: #238636; color: #fff; }
+        .badge-ga-soon { background: #1a7f37; color: #d3f5d8; border: 1px dashed #3fb950; }
+        .badge-public-preview { background: #1f3a5f; color: #58a6ff; }
+        .badge-beta { background: #4a2c0a; color: #d29922; }
+        .badge-private-preview { background: #3d1e5c; color: #bc8cff; }
+        .badge-experimental { background: #3d1e1e; color: #f47067; }
+        .description {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #8b949e;
+            margin-bottom: 24px;
+        }
+        .giscus-container { max-width: 900px; }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← Back to all features</a>
+    <div id="feature-header"></div>
+    <div class="giscus-container" id="giscus-container"></div>
+
+    <script>
+        function getParam(name) {
+            return new URLSearchParams(window.location.search).get(name);
+        }
+
+        function statusBadgeClass(status) {
+            if (!status) return '';
+            const s = status.toUpperCase();
+            if (s === 'GA') return 'badge-ga';
+            if (s.startsWith('GA_SOON')) return 'badge-ga-soon';
+            if (s.startsWith('PUBLIC_PREVIEW')) return 'badge-public-preview';
+            if (s.startsWith('BETA')) return 'badge-beta';
+            if (s.startsWith('PRIVATE_PREVIEW')) return 'badge-private-preview';
+            if (s.startsWith('EXPERIMENTAL')) return 'badge-experimental';
+            return 'badge-beta';
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (inQuotes) {
+                    if (ch === '"' && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else if (ch === '"') {
+                        inQuotes = false;
+                    } else {
+                        current += ch;
+                    }
+                } else {
+                    if (ch === '"') {
+                        inQuotes = true;
+                    } else if (ch === ',') {
+                        result.push(current);
+                        current = '';
+                    } else {
+                        current += ch;
+                    }
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        async function init() {
+            const feature = getParam('feature');
+            if (!feature) {
+                document.getElementById('feature-header').innerHTML = '<h1>Feature not found</h1>';
+                return;
+            }
+
+            document.title = `Discuss: ${feature}`;
+
+            // Load feature details from CSV
+            const resp = await fetch('features.csv');
+            const text = await resp.text();
+            const lines = text.trim().split('\n');
+            let found = null;
+            for (let i = 1; i < lines.length; i++) {
+                const row = parseCSVLine(lines[i]);
+                if (row.length >= 9 && row[1] === feature) {
+                    found = { category: row[0], feature: row[1], url: row[2], description: row[3], status: row[4], source: row[7] };
+                    break;
+                }
+            }
+
+            const header = document.getElementById('feature-header');
+            if (found) {
+                const badgeCls = statusBadgeClass(found.status);
+                const link = found.url ? `<a href="${found.url}" target="_blank" rel="noopener">${found.feature}</a>` : found.feature;
+                header.innerHTML = `
+                    <h1>${link} <span class="badge ${badgeCls}">${found.status}</span></h1>
+                    <p class="meta">${found.category} &middot; Source: ${found.source}</p>
+                    <div class="description">${found.description}</div>
+                `;
+            } else {
+                header.innerHTML = `<h1>${feature}</h1><p class="meta">Feature details not found in CSV</p>`;
+            }
+
+            // Load giscus for this specific feature
+            const script = document.createElement('script');
+            script.src = 'https://giscus.app/client.js';
+            script.setAttribute('data-repo', 'CauchyIO/dbr_feature_status_tracker');
+            script.setAttribute('data-repo-id', 'R_kgDORJj__g');
+            script.setAttribute('data-category', 'General');
+            script.setAttribute('data-category-id', 'DIC_kwDORJj__s4C2FlB');
+            script.setAttribute('data-mapping', 'specific');
+            script.setAttribute('data-term', feature);
+            script.setAttribute('data-strict', '0');
+            script.setAttribute('data-reactions-enabled', '1');
+            script.setAttribute('data-emit-metadata', '0');
+            script.setAttribute('data-input-position', 'top');
+            script.setAttribute('data-theme', 'dark_tritanopia');
+            script.setAttribute('data-lang', 'en');
+            script.setAttribute('crossorigin', 'anonymous');
+            script.async = true;
+            document.getElementById('giscus-container').appendChild(script);
+        }
+
+        init();
+    </script>
+</body>
+</html>
