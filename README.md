@@ -323,3 +323,7 @@ Tracks Databricks preview features across workspace and account scopes, combinin
 | [Performance efficiency best practices](https://learn.microsoft.com/en-gb/azure/databricks/lakehouse-architecture/performance-efficiency/best-practices) | This article covers best practices for performance efficiency, organized by architectural principles listed in the following sections. 1. | GA | - | Low | Docs | 2026-02-08 |
 
 *Last updated: 2026-02-09 — 199 features tracked across 22 categories.*
+
+---
+
+Made by [Cauchy](https://cauchy.io), a Databricks Partner.
