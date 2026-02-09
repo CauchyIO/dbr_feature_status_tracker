@@ -25,6 +25,30 @@
             margin-bottom: 20px;
             line-height: 1.5;
         }
+        .giscus-explainer {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 0.82rem;
+            color: #8b949e;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .giscus-explainer summary {
+            cursor: pointer;
+            color: #e6edf3;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .giscus-explainer summary:hover { color: #58a6ff; }
+        .giscus-explainer p { margin-top: 10px; }
+        .giscus-explainer ul {
+            margin: 8px 0 0 20px;
+            padding: 0;
+        }
+        .giscus-explainer ul li { margin-bottom: 4px; }
+
         .filters {
             display: flex;
             gap: 12px;
@@ -70,10 +94,19 @@
         td.dt-control {
             cursor: pointer;
             text-align: center;
-            font-size: 1rem;
+            font-size: 0.85rem;
+            user-select: none;
         }
-        td.dt-control::before { content: "\25B6"; color: #8b949e; } /* right arrow */
-        tr.shown td.dt-control::before { content: "\25BC"; color: #58a6ff; } /* down arrow */
+        td.dt-control::before {
+            content: "💬";
+            opacity: 0.5;
+            transition: opacity 0.15s;
+        }
+        td.dt-control:hover::before { opacity: 1; }
+        tr.shown td.dt-control::before {
+            content: "💬";
+            opacity: 1;
+        }
 
         /* Expanded child row */
         table.dataTable tr.child-row td {
@@ -185,6 +218,26 @@
         and your workspace's Previews page as the authoritative source.
     </div>
 
+    <details class="giscus-explainer">
+        <summary>How do discussions work? (Powered by Giscus)</summary>
+        <p>
+            Each feature has its own discussion thread. Click the 💬 icon on any row to expand it.
+            Discussions are powered by <a href="https://giscus.app" style="color:#58a6ff">Giscus</a>,
+            which uses <a href="https://github.com/CauchyIO/dbr_feature_status_tracker/discussions" style="color:#58a6ff">GitHub Discussions</a>
+            as the backend &mdash; no separate account needed.
+        </p>
+        <p>
+            <strong>When you comment for the first time</strong>, GitHub will ask you to authorize the Giscus app.
+            Here's what that means:
+        </p>
+        <ul>
+            <li>Giscus <strong>only</strong> requests permission to post discussion comments on your behalf. It cannot access your repos, code, or private data.</li>
+            <li>Comments are posted as <strong>your GitHub identity</strong> directly to this repo's Discussions tab &mdash; you can verify them there at any time.</li>
+            <li>Giscus is <a href="https://github.com/giscus/giscus" style="color:#58a6ff">fully open source</a> and stores no data itself. Everything lives in GitHub Discussions.</li>
+            <li>You can <strong>revoke access</strong> at any time from <a href="https://github.com/settings/apps/authorizations" style="color:#58a6ff">GitHub &rarr; Settings &rarr; Applications</a>.</li>
+        </ul>
+    </details>
+
     <div class="stats" id="stats"></div>
 
     <div class="filters">
@@ -197,7 +250,7 @@
     <table id="features" class="display" style="width:100%">
         <thead>
             <tr>
-                <th></th>
+                <th title="Click to expand discussion">Discuss</th>
                 <th>Category</th>
                 <th>Feature</th>
                 <th>Description</th>
