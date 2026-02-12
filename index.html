@@ -49,22 +49,88 @@
         }
         .giscus-explainer ul li { margin-bottom: 4px; }
 
-        .filters {
+        /* Chip filter system */
+        .chip-filters {
             display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        .filters select {
+        .chip-group {
             background: #161b22;
-            color: #e6edf3;
             border: 1px solid #30363d;
             border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 0.85rem;
-            cursor: pointer;
+            padding: 10px 14px;
         }
-        .filters select:focus { outline: 1px solid #58a6ff; border-color: #58a6ff; }
+        .chip-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .chip-group-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .chip-clear {
+            font-size: 0.72rem;
+            color: #8b949e;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: none;
+            padding: 0;
+        }
+        .chip-clear:hover { color: #e6edf3; }
+        .chip-clear.visible { display: inline; }
+        .chip-container { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #30363d;
+            background: transparent;
+            color: #8b949e;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .chip:hover { border-color: #58a6ff; color: #e6edf3; }
+        .chip.active { color: #fff; }
+        /* Status chip colors when active */
+        .chip.active.chip-ga { background: #238636; border-color: #238636; }
+        .chip.active.chip-ga-soon { background: #1a7f37; border-color: #3fb950; border-style: dashed; color: #d3f5d8; }
+        .chip.active.chip-public-preview { background: #1f3a5f; border-color: #58a6ff; color: #58a6ff; }
+        .chip.active.chip-beta { background: #4a2c0a; border-color: #d29922; color: #d29922; }
+        .chip.active.chip-private-preview { background: #3d1e5c; border-color: #bc8cff; color: #bc8cff; }
+        .chip.active.chip-experimental { background: #3d1e1e; border-color: #f47067; color: #f47067; }
+        /* Risk chip colors when active */
+        .chip.active.chip-risk-high { background: #3d1e1e; border-color: #f85149; color: #f85149; }
+        .chip.active.chip-risk-medium { background: #4a2c0a; border-color: #d29922; color: #d29922; }
+        .chip.active.chip-risk-low { background: #0f2d16; border-color: #3fb950; color: #3fb950; }
+        /* Generic accent for category/source chips */
+        .chip.active.chip-accent { background: #0d2240; border-color: #58a6ff; color: #58a6ff; }
+        .chip-count {
+            font-size: 0.68rem;
+            background: rgba(255,255,255,0.1);
+            padding: 1px 5px;
+            border-radius: 8px;
+            min-width: 18px;
+            text-align: center;
+        }
+        .chip.active .chip-count { background: rgba(255,255,255,0.2); }
+        @media (max-width: 600px) {
+            .chip-filters { gap: 8px; }
+            .chip-group { padding: 8px 10px; }
+            .chip { padding: 3px 8px; font-size: 0.7rem; }
+        }
 
         /* DataTables overrides for dark theme */
         table.dataTable { border-collapse: collapse; width: 100% !important; }
@@ -287,7 +353,7 @@
 
     <details class="sla-explainer">
         <summary>Release types &amp; SLA coverage</summary>
-        <p style="margin: 10px 0 4px;">Source: <a href="https://cauchyio.github.io/dbr_feature_status_tracker/" style="color:#58a6ff">cauchyio.github.io/dbr_feature_status_tracker</a></p>
+        <p style="margin: 10px 0 4px;">Source: <a href="https://learn.microsoft.com/en-gb/azure/databricks/release-notes/release-types" style="color:#58a6ff">Azure Databricks release types</a></p>
         <table class="sla-table">
             <thead>
                 <tr>
@@ -378,11 +444,35 @@
 
     <div class="stats" id="stats"></div>
 
-    <div class="filters">
-        <select id="filterCategory"><option value="">All Categories</option></select>
-        <select id="filterStatus"><option value="">All Statuses</option></select>
-        <select id="filterSource"><option value="">All Sources</option></select>
-        <select id="filterRisk"><option value="">All Risk Levels</option></select>
+    <div class="chip-filters" id="chipFilters">
+        <div class="chip-group" data-group="category">
+            <div class="chip-group-header">
+                <span class="chip-group-label">Category</span>
+                <button class="chip-clear" type="button">Clear</button>
+            </div>
+            <div class="chip-container"></div>
+        </div>
+        <div class="chip-group" data-group="status">
+            <div class="chip-group-header">
+                <span class="chip-group-label">Status</span>
+                <button class="chip-clear" type="button">Clear</button>
+            </div>
+            <div class="chip-container"></div>
+        </div>
+        <div class="chip-group" data-group="source">
+            <div class="chip-group-header">
+                <span class="chip-group-label">Source</span>
+                <button class="chip-clear" type="button">Clear</button>
+            </div>
+            <div class="chip-container"></div>
+        </div>
+        <div class="chip-group" data-group="risk">
+            <div class="chip-group-header">
+                <span class="chip-group-label">Risk Level</span>
+                <button class="chip-clear" type="button">Clear</button>
+            </div>
+            <div class="chip-container"></div>
+        </div>
     </div>
 
     <table id="features" class="display" style="width:100%">
@@ -407,6 +497,7 @@
     <script>
         // Store raw data globally so child rows can access it
         let featureData = [];
+        const filterState = { category: new Set(), status: new Set(), source: new Set(), risk: new Set() };
 
         function statusBadge(status) {
             if (!status || status === '-') return '-';
@@ -532,16 +623,69 @@
         $(async function () {
             featureData = await loadCSV();
 
-            // Populate filter dropdowns
+            // Derive unique values and counts for chip filters
             const categories = [...new Set(featureData.map(d => d.category))].sort();
             const statuses = [...new Set(featureData.map(d => d.status))].filter(s => s && s !== '-').sort();
             const sources = [...new Set(featureData.map(d => d.source))].filter(s => s && s !== '-').sort();
             const risks = ['High', 'Medium', 'Low'];
 
-            categories.forEach(c => $('#filterCategory').append(`<option value="${c}">${c}</option>`));
-            statuses.forEach(s => $('#filterStatus').append(`<option value="${s}">${s}</option>`));
-            sources.forEach(s => $('#filterSource').append(`<option value="${s}">${s}</option>`));
-            risks.forEach(r => $('#filterRisk').append(`<option value="${r}">${r}</option>`));
+            function countValues(field, value) {
+                if (field === 'risk') {
+                    const v = value.toLowerCase();
+                    return featureData.filter(d => {
+                        const rh = (d.riskHuman || '').toLowerCase();
+                        const ra = (d.riskAI || '').toLowerCase();
+                        return rh.startsWith(v) || ra.startsWith(v);
+                    }).length;
+                }
+                return featureData.filter(d => d[field] === value).length;
+            }
+
+            function statusChipClass(s) {
+                const u = s.toUpperCase();
+                if (u === 'GA') return 'chip-ga';
+                if (u.startsWith('GA_SOON')) return 'chip-ga-soon';
+                if (u.startsWith('PUBLIC_PREVIEW')) return 'chip-public-preview';
+                if (u.startsWith('BETA')) return 'chip-beta';
+                if (u.startsWith('PRIVATE_PREVIEW')) return 'chip-private-preview';
+                if (u.startsWith('EXPERIMENTAL')) return 'chip-experimental';
+                return 'chip-accent';
+            }
+
+            function riskChipClass(r) {
+                const l = r.toLowerCase();
+                if (l === 'high') return 'chip-risk-high';
+                if (l === 'medium') return 'chip-risk-medium';
+                if (l === 'low') return 'chip-risk-low';
+                return 'chip-accent';
+            }
+
+            function buildChips() {
+                const groups = {
+                    category: { values: categories, field: 'category', colorFn: () => 'chip-accent' },
+                    status:   { values: statuses,   field: 'status',   colorFn: statusChipClass },
+                    source:   { values: sources,    field: 'source',   colorFn: () => 'chip-accent' },
+                    risk:     { values: risks,      field: 'risk',     colorFn: riskChipClass }
+                };
+                for (const [group, cfg] of Object.entries(groups)) {
+                    const container = document.querySelector(`.chip-group[data-group="${group}"] .chip-container`);
+                    container.innerHTML = '';
+                    cfg.values.forEach(val => {
+                        const count = countValues(cfg.field, val);
+                        const colorCls = cfg.colorFn(val);
+                        const active = filterState[group].has(val) ? ' active' : '';
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = `chip ${colorCls}${active}`;
+                        btn.dataset.group = group;
+                        btn.dataset.value = val;
+                        btn.innerHTML = `${val} <span class="chip-count">${count}</span>`;
+                        container.appendChild(btn);
+                    });
+                }
+            }
+
+            buildChips();
 
             // Stats
             const total = featureData.length;
@@ -634,36 +778,115 @@
                 }
             });
 
-            // Custom column filters
+            // Multi-select chip filters: OR within group, AND between groups
             function applyFilters() {
-                const cat = $('#filterCategory').val();
-                const status = $('#filterStatus').val();
-                const source = $('#filterSource').val();
-                const risk = $('#filterRisk').val();
+                const esc = $.fn.dataTable.util.escapeRegex;
 
-                table.column(1).search(cat ? `^${$.fn.dataTable.util.escapeRegex(cat)}$` : '', true, false);
-                table.column(7).search(source ? `^${$.fn.dataTable.util.escapeRegex(source)}$` : '', true, false);
+                // Category (col 1): exact match OR
+                if (filterState.category.size) {
+                    const re = [...filterState.category].map(v => esc(v)).join('|');
+                    table.column(1).search(`^(${re})$`, true, false);
+                } else {
+                    table.column(1).search('', true, false);
+                }
 
-                if (status) {
-                    table.column(4).search($.fn.dataTable.util.escapeRegex(status), true, false);
+                // Source (col 7): unanchored OR (handles compound values like "Account, Docs")
+                if (filterState.source.size) {
+                    const re = [...filterState.source].map(v => esc(v)).join('|');
+                    table.column(7).search(re, true, false);
+                } else {
+                    table.column(7).search('', true, false);
+                }
+
+                // Status (col 4): unanchored OR
+                if (filterState.status.size) {
+                    const re = [...filterState.status].map(v => esc(v)).join('|');
+                    table.column(4).search(re, true, false);
                 } else {
                     table.column(4).search('', true, false);
                 }
 
+                // Risk (cols 5+6): custom ext.search with prefix matching against Set
                 $.fn.dataTable.ext.search.length = 0;
-                if (risk) {
-                    const re = risk.toLowerCase();
+                if (filterState.risk.size) {
+                    const riskVals = new Set([...filterState.risk].map(v => v.toLowerCase()));
                     $.fn.dataTable.ext.search.push(function (settings, searchData) {
                         const rh = (searchData[5] || '').toLowerCase();
                         const ra = (searchData[6] || '').toLowerCase();
-                        return rh.startsWith(re) || ra.startsWith(re);
+                        for (const rv of riskVals) {
+                            if (rh.startsWith(rv) || ra.startsWith(rv)) return true;
+                        }
+                        return false;
                     });
                 }
 
                 table.draw();
+                updateURL();
             }
 
-            $('#filterCategory, #filterStatus, #filterSource, #filterRisk').on('change', applyFilters);
+            // Update Clear button visibility for a group
+            function updateClearBtn(group) {
+                const btn = document.querySelector(`.chip-group[data-group="${group}"] .chip-clear`);
+                btn.classList.toggle('visible', filterState[group].size > 0);
+            }
+
+            // Chip click: toggle selection
+            document.getElementById('chipFilters').addEventListener('click', function (e) {
+                const chip = e.target.closest('.chip');
+                if (chip) {
+                    const group = chip.dataset.group;
+                    const value = chip.dataset.value;
+                    if (filterState[group].has(value)) {
+                        filterState[group].delete(value);
+                        chip.classList.remove('active');
+                    } else {
+                        filterState[group].add(value);
+                        chip.classList.add('active');
+                    }
+                    updateClearBtn(group);
+                    applyFilters();
+                    return;
+                }
+                const clearBtn = e.target.closest('.chip-clear');
+                if (clearBtn) {
+                    const group = clearBtn.closest('.chip-group').dataset.group;
+                    filterState[group].clear();
+                    clearBtn.closest('.chip-group').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    clearBtn.classList.remove('visible');
+                    applyFilters();
+                }
+            });
+
+            // URL hash state
+            function updateURL() {
+                const params = {};
+                for (const [group, vals] of Object.entries(filterState)) {
+                    if (vals.size) params[group] = [...vals].join(',');
+                }
+                const hash = new URLSearchParams(params).toString();
+                history.replaceState(null, '', hash ? `#${hash}` : location.pathname + location.search);
+            }
+
+            function restoreFromURL() {
+                const hash = location.hash.slice(1);
+                if (!hash) return;
+                const params = new URLSearchParams(hash);
+                for (const [group, vals] of params.entries()) {
+                    if (filterState.hasOwnProperty(group)) {
+                        vals.split(',').forEach(v => filterState[group].add(v));
+                    }
+                }
+                // Sync chip UI
+                document.querySelectorAll('.chip').forEach(chip => {
+                    const g = chip.dataset.group;
+                    const v = chip.dataset.value;
+                    if (filterState[g] && filterState[g].has(v)) chip.classList.add('active');
+                });
+                for (const group of Object.keys(filterState)) updateClearBtn(group);
+                applyFilters();
+            }
+
+            restoreFromURL();
         });
     </script>
 
