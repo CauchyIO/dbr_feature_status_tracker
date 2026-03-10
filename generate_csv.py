@@ -92,7 +92,7 @@ def write_csv(rows, output_path):
 
 
 if __name__ == "__main__":
-    readme_path = SCRIPT_DIR.parent / "README.md"
+    readme_path = SCRIPT_DIR / "README.md"
     output_path = SCRIPT_DIR / "features.csv"
     rows = parse_readme(readme_path)
     write_csv(rows, output_path)
