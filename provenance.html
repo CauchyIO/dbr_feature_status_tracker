@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Tree Overview — Databricks Feature Status Tracker</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            padding: 24px;
+        }
+        h1 { font-size: 1.6rem; margin-bottom: 8px; }
+        .subtitle { color: #8b949e; font-size: 0.9rem; margin-bottom: 20px; }
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #30363d;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+            text-decoration: none;
+        }
+        .tab-btn:hover { color: #e6edf3; }
+        .tab-btn.active { color: #e6edf3; border-bottom-color: #f78166; }
+
+        /* Search and filters */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-input {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            width: 300px;
+        }
+        .search-input:focus { outline: none; border-color: #58a6ff; }
+        .filter-select {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        .filter-select:focus { outline: none; border-color: #58a6ff; }
+        .stats { color: #8b949e; font-size: 0.82rem; }
+
+        /* Legend */
+        .legend {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .legend summary {
+            cursor: pointer;
+            color: #e6edf3;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .legend summary:hover { color: #58a6ff; }
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .legend-section h3 {
+            font-size: 0.78rem;
+            color: #58a6ff;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 4px;
+        }
+        .legend-item {
+            font-size: 0.73rem;
+            color: #8b949e;
+            padding: 2px 0;
+        }
+        .legend-item code {
+            background: #21262d;
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: #e6edf3;
+            font-size: 0.7rem;
+        }
+
+        /* Feature cards */
+        .feature-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .feature-header:hover { background: #1c2128; }
+        .feature-name {
+            font-size: 0.88rem;
+            font-weight: 500;
+            flex: 1;
+        }
+        .feature-meta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .badge-ga { background: #238636; color: #fff; }
+        .badge-pp { background: #1f3a5f; color: #79c0ff; }
+        .badge-prp { background: #3d1e5c; color: #d2a8ff; }
+        .badge-beta { background: #4a2c0a; color: #f0b858; }
+        .badge-exp { background: #3d1e1e; color: #f0a8a8; }
+        .badge-unknown { background: #21262d; color: #8b949e; }
+
+        /* Source tags */
+        .source-tag {
+            font-size: 0.68rem;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: #21262d;
+            color: #8b949e;
+        }
+        .source-tag.docs { border-left: 2px solid #58a6ff; }
+        .source-tag.preview_api { border-left: 2px solid #3fb950; }
+
+        /* Name source tags */
+        .name-tag {
+            font-size: 0.65rem;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: #1c2333;
+            color: #6e7681;
+        }
+
+        /* Expanded content */
+        .feature-body {
+            display: none;
+            padding: 0 16px 16px;
+            border-top: 1px solid #21262d;
+        }
+        .feature-card.expanded .feature-body { display: block; }
+        .feature-card.expanded .feature-header { background: #1c2128; }
+
+        /* Trail pipeline */
+        .trail-pipeline {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+        .trail-node {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px 12px;
+            min-width: 140px;
+            max-width: 240px;
+        }
+        .trail-node.winning {
+            border-color: #3fb950;
+            background: #0d2818;
+        }
+        .trail-node.xref {
+            border-color: #58a6ff;
+            background: #0d1d30;
+        }
+        .trail-node-label {
+            font-size: 0.68rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+        .trail-node-value { margin-bottom: 2px; }
+        .trail-node-detail {
+            font-size: 0.68rem;
+            color: #6e7681;
+            word-break: break-word;
+        }
+        .trail-connector {
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            color: #30363d;
+            font-size: 1.2rem;
+        }
+        .trail-connector::after { content: '\2192'; }
+
+        /* Cross-reference section */
+        .xref-list { margin: 0; padding: 0; list-style: none; }
+        .xref-item {
+            font-size: 0.73rem;
+            color: #8b949e;
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            background: #1c2333;
+            border-left: 3px solid #58a6ff;
+            border-radius: 0 4px 4px 0;
+        }
+        .xref-label { color: #6e7681; }
+        .xref-name { color: #e6edf3; font-weight: 500; }
+        .xref-page { color: #6e7681; font-size: 0.68rem; }
+        .xref-page a { color: #58a6ff; text-decoration: none; font-size: 0.68rem; }
+        .xref-page a:hover { text-decoration: underline; }
+
+        /* Section labels */
+        .section-label {
+            font-size: 0.68rem;
+            color: #6e7681;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin: 12px 0 6px;
+        }
+
+        /* Pages list */
+        .page-list { margin: 0; padding: 0; list-style: none; }
+        .page-list li {
+            font-size: 0.72rem;
+            padding: 2px 0;
+        }
+        .page-list a { color: #58a6ff; text-decoration: none; font-size: 0.72rem; }
+        .page-list a:hover { text-decoration: underline; }
+        .page-title-label { color: #6e7681; font-size: 0.68rem; margin-left: 6px; }
+
+        /* Issues */
+        .issue-tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: #3d1e1e;
+            color: #f0a8a8;
+            margin-right: 4px;
+        }
+
+        /* Confidence tags */
+        .conf-tag {
+            font-size: 0.68rem;
+            padding: 1px 6px;
+            border-radius: 3px;
+        }
+        .conf-tag.confirmed { background: #0d2818; color: #3fb950; }
+        .conf-tag.api_only { background: #1c2333; color: #58a6ff; }
+        .conf-tag.api_override { background: #2d1b00; color: #f0b858; }
+        .conf-tag.llm { background: #1c2333; color: #d2a8ff; }
+        .conf-tag.llm_sub_feature { background: #1c2333; color: #d2a8ff; }
+        .conf-tag.llm_sub_feature_xref { background: #0d1d30; color: #58a6ff; }
+        .conf-tag.docs_only { background: #21262d; color: #8b949e; }
+        .conf-tag.high { background: #0d2818; color: #3fb950; }
+        .conf-tag.low { background: #2d1b00; color: #f0b858; }
+
+        /* Expand/collapse toggle */
+        .expand-icon {
+            color: #6e7681;
+            font-size: 0.8rem;
+            transition: transform 0.15s;
+        }
+        .feature-card.expanded .expand-icon { transform: rotate(90deg); }
+
+        /* Sub-features */
+        .sf-list { margin: 4px 0 0 0; padding: 0; list-style: none; }
+        .sf-list li {
+            font-size: 0.73rem;
+            color: #8b949e;
+            padding: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sf-list .sf-name { color: #e6edf3; }
+
+        /* Summary stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+        .stat-label {
+            font-size: 0.72rem;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Decision Tree Overview</h1>
+    <p class="subtitle">How each feature's name, status, and classification were determined.
+        <a href="index.html" style="color:#58a6ff;text-decoration:none;margin-left:12px;">&larr; Back to Features</a>
+    </p>
+
+    <div class="tab-nav">
+        <a href="index.html" class="tab-btn" style="text-decoration:none;">Features</a>
+        <a href="index.html#changelog" class="tab-btn" style="text-decoration:none;">Changelog</a>
+        <a href="provenance.html" class="tab-btn active" style="text-decoration:none;">Decision Tree Overview</a>
+    </div>
+
+    <details class="legend">
+        <summary>Legend &mdash; How to read the decision tree</summary>
+        <div class="legend-grid">
+            <div class="legend-section">
+                <h3>Status Trail Nodes</h3>
+                <div class="legend-item"><code>Docs Banner</code> &mdash; Status extracted by regex from page's Important/Note admonition</div>
+                <div class="legend-item"><code>LLM Verdict</code> &mdash; Claude's analysis when regex was ambiguous or page has sub-features</div>
+                <div class="legend-item"><code>Preview API</code> &mdash; Status from Databricks workspace/account preview API</div>
+                <div class="legend-item"><code>Cross-Reference</code> &mdash; Feature also mentioned on another page (confirms status independently)</div>
+                <div class="legend-item"><code>Final Status</code> &mdash; Reconciled status used in output (green border = winning)</div>
+                <div class="legend-item"><code>Carried Forward</code> &mdash; Preserved from previous run (feature not detected in current pipeline)</div>
+            </div>
+            <div class="legend-section">
+                <h3>Name Sources</h3>
+                <div class="legend-item"><code>page_title</code> &mdash; Page title (single-page feature)</div>
+                <div class="legend-item"><code>nav_tree</code> &mdash; Navigation tree (deepest path component)</div>
+                <div class="legend-item"><code>api_display_name</code> &mdash; From Databricks Preview API</div>
+                <div class="legend-item"><code>llm_sub_feature</code> &mdash; LLM-identified sub-feature on a parent page</div>
+                <div class="legend-item"><code>name_override</code> &mdash; Manual override in config/name_overrides.json</div>
+                <div class="legend-item"><code>ai_function_norm</code> &mdash; Normalized AI function name</div>
+                <div class="legend-item"><code>generic_prefix</code> &mdash; Generic name prefixed with parent category</div>
+            </div>
+            <div class="legend-section">
+                <h3>Confidence Levels</h3>
+                <div class="legend-item"><code>confirmed</code> &mdash; API and docs agree</div>
+                <div class="legend-item"><code>api_only</code> &mdash; Only API has status</div>
+                <div class="legend-item"><code>api_override</code> &mdash; API overrides conflicting docs</div>
+                <div class="legend-item"><code>llm_sub_feature</code> &mdash; LLM identified on parent page</div>
+                <div class="legend-item"><code>llm_sub_feature_xref</code> &mdash; LLM sub-feature confirmed by cross-reference</div>
+                <div class="legend-item"><code>high</code> / <code>low</code> &mdash; Regex extraction confidence</div>
+            </div>
+            <div class="legend-section">
+                <h3>Cross-References</h3>
+                <div class="legend-item">When a feature appears on both a dedicated page and a parent overview page, the duplicates are merged.</div>
+                <div class="legend-item">The dedicated (deeper) page is kept as canonical. The overview mention becomes a <code>cross_reference</code>.</div>
+                <div class="legend-item">Cross-references add confidence &mdash; the feature was independently identified on multiple pages.</div>
+            </div>
+        </div>
+    </details>
+
+    <div id="stats-container" class="stats-grid"></div>
+
+    <div class="controls">
+        <input type="text" class="search-input" id="search" placeholder="Search features...">
+        <select class="filter-select" id="filter-confidence">
+            <option value="">All confidence levels</option>
+        </select>
+        <select class="filter-select" id="filter-source">
+            <option value="">All name sources</option>
+        </select>
+        <select class="filter-select" id="filter-xref">
+            <option value="">All features</option>
+            <option value="has_xref">Has cross-references</option>
+            <option value="has_issues">Has issues</option>
+        </select>
+        <span class="stats" id="result-count"></span>
+    </div>
+
+    <div id="features-container"></div>
+
+    <script>
+        let allFeatures = [];
+
+        function statusBadge(s) {
+            if (!s) return '<span class="badge badge-unknown">UNKNOWN</span>';
+            const sn = s.toUpperCase().replace(/\s+/g, '_');
+            let cls = 'badge-unknown';
+            if (sn === 'GENERALLY_AVAILABLE' || sn === 'GA') cls = 'badge-ga';
+            else if (sn.includes('PUBLIC_PREVIEW') || sn === 'PUBLIC PREVIEW') cls = 'badge-pp';
+            else if (sn.includes('PRIVATE_PREVIEW') || sn === 'PRIVATE PREVIEW') cls = 'badge-prp';
+            else if (sn === 'BETA') cls = 'badge-beta';
+            else if (sn === 'EXPERIMENTAL') cls = 'badge-exp';
+            return `<span class="badge ${cls}">${sn.replace(/_/g, ' ')}</span>`;
+        }
+
+        function buildTrail(trail) {
+            if (!trail || !trail.length) return '';
+            let html = '<div class="trail-pipeline">';
+            trail.forEach((node, i) => {
+                if (i > 0) html += '<div class="trail-connector"></div>';
+                let cls = '';
+                if (node.winning) cls = ' winning';
+                else if (node.source === 'cross_reference') cls = ' xref';
+                html += `<div class="trail-node${cls}">`;
+                html += `<div class="trail-node-label">${node.label}</div>`;
+                if (node.status) {
+                    html += `<div class="trail-node-value">${statusBadge(node.status)}</div>`;
+                }
+                if (node.detail) {
+                    let detail = node.detail;
+                    // Truncate long LLM reasoning
+                    if (detail.length > 120) detail = detail.substring(0, 117) + '...';
+                    html += `<div class="trail-node-detail">${detail}</div>`;
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+
+            // Sub-features from LLM verdict
+            const llmNode = trail.find(n => n.source === 'llm_verdict' && n.sub_features);
+            if (llmNode) {
+                html += '<div style="margin-top:6px;">';
+                html += '<div style="font-size:0.68rem;color:#6e7681;margin-bottom:3px;">LLM-identified sub-features:</div>';
+                html += '<ul class="sf-list">';
+                llmNode.sub_features.forEach(sf => {
+                    html += `<li><span class="sf-name">${sf.name}</span> ${statusBadge(sf.status)}</li>`;
+                });
+                html += '</ul></div>';
+            }
+
+            return html;
+        }
+
+        function buildCrossRefs(xrefs) {
+            if (!xrefs || !xrefs.length) return '';
+            let html = '<div class="section-label">Cross-References</div>';
+            html += '<ul class="xref-list">';
+            xrefs.forEach(xref => {
+                html += '<li class="xref-item">';
+                html += `<span class="xref-label">Also listed as</span> `;
+                html += `<span class="xref-name">${xref.mentioned_as}</span>`;
+                if (xref.status) html += ` ${statusBadge(xref.status)}`;
+                html += '<br>';
+                if (xref.page_url) {
+                    html += `<span class="xref-page">on <a href="${xref.page_url}" target="_blank" rel="noopener">${xref.page_title || xref.page_url}</a></span>`;
+                } else if (xref.page_title) {
+                    html += `<span class="xref-page">on ${xref.page_title}</span>`;
+                }
+                html += '</li>';
+            });
+            html += '</ul>';
+            return html;
+        }
+
+        function buildCard(name, prov) {
+            const trail = prov.status_trail || [];
+            const finalNode = trail.find(n => n.winning);
+            const status = finalNode ? finalNode.status : '';
+            const sources = (prov.sources || []).map(s =>
+                `<span class="source-tag ${s}">${s}</span>`
+            ).join(' ');
+            const hasXref = prov.cross_references && prov.cross_references.length;
+            const hasIssues = prov.issues && prov.issues.length;
+
+            let body = '';
+
+            // Name source
+            body += `<div class="section-label">Name Resolution</div>`;
+            body += `<span class="name-tag">${prov.name_source || 'unknown'}</span> `;
+            body += `<span style="font-size:0.7rem;color:#6e7681;">${prov.name_source_label || ''}</span>`;
+
+            // Status trail
+            if (trail.length) {
+                body += '<div class="section-label">Status Decision Path</div>';
+                body += buildTrail(trail);
+            }
+
+            // Cross-references
+            if (hasXref) {
+                body += buildCrossRefs(prov.cross_references);
+            }
+
+            // Confidence
+            body += '<div class="section-label">Classification</div>';
+            const conf = prov.status_confidence || 'unknown';
+            body += `<span class="conf-tag ${conf}">${conf.replace(/_/g, ' ')}</span> `;
+            body += `<span style="font-size:0.7rem;color:#6e7681;">${prov.confidence_reason || ''}</span>`;
+
+            // Group path
+            if (prov.group_path) {
+                const parts = prov.group_path.split(' > ');
+                body += '<div style="margin-top:6px;font-size:0.72rem;">';
+                body += '<span style="color:#6e7681;">Group:</span> ';
+                body += parts.map(p => `<span style="color:#8b949e;">${p}</span>`).join('<span style="color:#30363d;margin:0 4px;">&rsaquo;</span>');
+                body += '</div>';
+            }
+
+            // Issues
+            if (hasIssues) {
+                body += '<div style="margin-top:6px;">';
+                prov.issues.forEach(iss => {
+                    body += `<span class="issue-tag">${iss}</span>`;
+                });
+                body += '</div>';
+            }
+
+            // Pages
+            if (prov.pages && prov.pages.length) {
+                body += `<div class="section-label">Source Pages (${prov.pages.length})</div>`;
+                body += '<ul class="page-list">';
+                prov.pages.forEach((url, i) => {
+                    const title = (prov.page_titles && prov.page_titles[i]) || '';
+                    body += `<li><a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+                    if (title) body += `<span class="page-title-label">${title}</span>`;
+                    body += '</li>';
+                });
+                body += '</ul>';
+            }
+
+            // API metadata
+            if (prov.api) {
+                body += '<div class="section-label">Preview API Match</div>';
+                body += `<div style="font-size:0.72rem;color:#8b949e;">`;
+                body += `<strong style="color:#e6edf3;">Key:</strong> ${prov.api.feature_name}`;
+                body += ` &nbsp;|&nbsp; <strong style="color:#e6edf3;">Display:</strong> ${prov.api.display_name}`;
+                body += ` &nbsp;|&nbsp; <strong style="color:#e6edf3;">Scope:</strong> ${prov.api.scope}`;
+                body += '</div>';
+            }
+
+            return `
+                <div class="feature-card"
+                     data-name="${name.toLowerCase()}"
+                     data-confidence="${conf}"
+                     data-name-source="${prov.name_source || ''}"
+                     data-has-xref="${hasXref ? 'yes' : 'no'}"
+                     data-has-issues="${hasIssues ? 'yes' : 'no'}"
+>
+                    <div class="feature-header" onclick="this.parentElement.classList.toggle('expanded')">
+                        <span class="expand-icon">&#9654;</span>
+                        <span class="feature-name">${name}</span>
+                        <div class="feature-meta">
+                            ${hasXref ? '<span class="name-tag" style="border-left:2px solid #58a6ff;">xref</span>' : ''}
+                            <span class="name-tag">${prov.name_source || ''}</span>
+                            ${statusBadge(status)}
+                            ${sources}
+                        </div>
+                    </div>
+                    <div class="feature-body">${body}</div>
+                </div>`;
+        }
+
+        function renderStats(data) {
+            const total = Object.keys(data).length;
+            const byConfidence = {};
+            const byNameSource = {};
+            let xrefCount = 0;
+            let issueCount = 0;
+
+            Object.values(data).forEach(prov => {
+                const conf = prov.status_confidence || 'unknown';
+                byConfidence[conf] = (byConfidence[conf] || 0) + 1;
+                const ns = prov.name_source || 'unknown';
+                byNameSource[ns] = (byNameSource[ns] || 0) + 1;
+                if (prov.cross_references && prov.cross_references.length) xrefCount++;
+                if (prov.issues && prov.issues.length) issueCount++;
+            });
+
+            let html = `<div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Total Features</div></div>`;
+            html += `<div class="stat-card"><div class="stat-value">${xrefCount}</div><div class="stat-label">Cross-Referenced</div></div>`;
+            html += `<div class="stat-card"><div class="stat-value">${issueCount}</div><div class="stat-label">With Issues</div></div>`;
+
+            // Top confidence levels
+            const topConf = Object.entries(byConfidence).sort((a, b) => b[1] - a[1]).slice(0, 4);
+            topConf.forEach(([conf, count]) => {
+                html += `<div class="stat-card"><div class="stat-value">${count}</div><div class="stat-label">${conf.replace(/_/g, ' ')}</div></div>`;
+            });
+
+            document.getElementById('stats-container').innerHTML = html;
+
+            // Populate filter dropdowns
+            const confSelect = document.getElementById('filter-confidence');
+            Object.keys(byConfidence).sort().forEach(c => {
+                confSelect.innerHTML += `<option value="${c}">${c.replace(/_/g, ' ')} (${byConfidence[c]})</option>`;
+            });
+            const srcSelect = document.getElementById('filter-source');
+            Object.keys(byNameSource).sort().forEach(s => {
+                srcSelect.innerHTML += `<option value="${s}">${s} (${byNameSource[s]})</option>`;
+            });
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const confFilter = document.getElementById('filter-confidence').value;
+            const srcFilter = document.getElementById('filter-source').value;
+            const xrefFilter = document.getElementById('filter-xref').value;
+
+            const cards = document.querySelectorAll('.feature-card');
+            let visible = 0;
+            cards.forEach(card => {
+                const name = card.dataset.name;
+                const conf = card.dataset.confidence;
+                const ns = card.dataset.nameSource;
+                const hasXref = card.dataset.hasXref;
+                const hasIssues = card.dataset.hasIssues;
+
+                let show = true;
+                if (search && !name.includes(search)) show = false;
+                if (confFilter && conf !== confFilter) show = false;
+                if (srcFilter && ns !== srcFilter) show = false;
+                if (xrefFilter === 'has_xref' && hasXref !== 'yes') show = false;
+                if (xrefFilter === 'has_issues' && hasIssues !== 'yes') show = false;
+
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+
+            document.getElementById('result-count').textContent = `${visible} of ${cards.length} features`;
+        }
+
+        async function init() {
+            try {
+                const resp = await fetch('features_detail.json');
+                const data = await resp.json();
+
+                renderStats(data);
+
+                // Sort features alphabetically
+                const sorted = Object.entries(data).sort((a, b) => a[0].localeCompare(b[0]));
+
+                const container = document.getElementById('features-container');
+                container.innerHTML = sorted.map(([name, prov]) => buildCard(name, prov)).join('');
+
+                document.getElementById('result-count').textContent = `${sorted.length} of ${sorted.length} features`;
+
+                // Wire up filters
+                document.getElementById('search').addEventListener('input', applyFilters);
+                document.getElementById('filter-confidence').addEventListener('change', applyFilters);
+                document.getElementById('filter-source').addEventListener('change', applyFilters);
+                document.getElementById('filter-xref').addEventListener('change', applyFilters);
+
+            } catch (err) {
+                document.getElementById('features-container').innerHTML =
+                    `<div style="color:#f0a8a8;padding:20px;">Failed to load features_detail.json: ${err.message}</div>`;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

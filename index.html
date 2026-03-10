@@ -266,6 +266,32 @@
             border: 1px solid #30363d; border-radius: 6px; padding: 4px 8px;
         }
 
+        /* Tab navigation */
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #30363d;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s ease;
+        }
+        .tab-btn:hover { color: #e6edf3; }
+        .tab-btn.active {
+            color: #e6edf3;
+            border-bottom-color: #58a6ff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .stats { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
         .stat-card {
             background: #161b22; border: 1px solid #30363d; border-radius: 6px;
@@ -273,6 +299,54 @@
         }
         .stat-card .number { font-size: 1.4rem; font-weight: 700; }
         .stat-card .label { font-size: 0.75rem; color: #8b949e; margin-top: 2px; }
+
+        /* Changelog styles */
+        .changelog-container {
+            max-width: 900px;
+        }
+        .changelog-entry {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+        .changelog-entry h2 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            color: #e6edf3;
+        }
+        .changelog-entry .changelog-summary {
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-bottom: 12px;
+        }
+        .changelog-entry h3 {
+            font-size: 0.9rem;
+            color: #58a6ff;
+            margin: 14px 0 8px;
+        }
+        .changelog-entry ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .changelog-entry li {
+            font-size: 0.84rem;
+            color: #c9d1d9;
+            padding: 4px 0;
+            line-height: 1.5;
+        }
+        .changelog-entry li::before {
+            content: ''; display: inline-block; width: 6px; height: 6px;
+            background: #30363d; border-radius: 50%; margin-right: 8px; vertical-align: middle;
+        }
+        .changelog-entry li.new-feature::before { background: #3fb950; }
+        .changelog-entry li.removed::before { background: #f85149; }
+        .changelog-entry li.status-change::before { background: #d29922; }
+        .changelog-entry a { color: #58a6ff; text-decoration: none; }
+        .changelog-entry a:hover { text-decoration: underline; }
+        .changelog-entry .transition-arrow { color: #8b949e; }
 
         /* SLA reference table */
         .sla-explainer {
@@ -316,12 +390,228 @@
         .sla-table td:last-child { font-size: 0.78rem; max-width: 420px; }
         .sla-table .yes { color: #3fb950; font-weight: 600; }
         .sla-table .no { color: #f85149; font-weight: 600; }
+        /* Provenance trail */
+        .prov-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #30363d;
+            background: transparent;
+            color: #8b949e;
+            transition: all 0.15s ease;
+            margin-bottom: 12px;
+        }
+        .prov-toggle:hover { border-color: #58a6ff; color: #e6edf3; }
+        .prov-toggle.active { border-color: #58a6ff; color: #58a6ff; background: rgba(88,166,255,0.08); }
+        .prov-panel { display: none; margin-bottom: 16px; }
+        .prov-panel.visible { display: block; }
+        .prov-section {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .prov-section-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
+        /* Status pipeline */
+        .trail-pipeline {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+        .trail-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 14px;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            background: #161b22;
+            min-width: 100px;
+            text-align: center;
+            position: relative;
+        }
+        .trail-node.winning {
+            border-color: #58a6ff;
+            box-shadow: 0 0 8px rgba(88,166,255,0.15);
+        }
+        .trail-node.conflict {
+            border-color: #f85149;
+            box-shadow: 0 0 8px rgba(248,81,73,0.15);
+        }
+        .trail-node-label {
+            font-size: 0.68rem;
+            color: #8b949e;
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+        .trail-node-value {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+        .trail-node-detail {
+            font-size: 0.65rem;
+            color: #6e7681;
+            margin-top: 3px;
+            max-width: 160px;
+            word-break: break-word;
+        }
+        .trail-connector {
+            width: 28px;
+            height: 2px;
+            background: #30363d;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .trail-connector::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -3px;
+            width: 0; height: 0;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            border-left: 6px solid #30363d;
+        }
+        /* Name source badge */
+        .name-source-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            border: 1px solid #30363d;
+            background: #161b22;
+            color: #8b949e;
+        }
+        .name-source-tag.override { border-color: #d29922; color: #d29922; }
+        .name-source-tag.llm { border-color: #bc8cff; color: #bc8cff; }
+        .name-source-tag.api { border-color: #58a6ff; color: #58a6ff; }
+        /* Confidence bar */
+        .confidence-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .confidence-label {
+            font-size: 0.72rem;
+            color: #8b949e;
+            white-space: nowrap;
+        }
+        .confidence-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .confidence-tag.confirmed { background: #0f2d16; color: #3fb950; }
+        .confidence-tag.high { background: #0f2d16; color: #3fb950; }
+        .confidence-tag.api_only { background: #1f3a5f; color: #58a6ff; }
+        .confidence-tag.api_override { background: #4a2c0a; color: #d29922; }
+        .confidence-tag.llm { background: #3d1e5c; color: #bc8cff; }
+        .confidence-tag.llm_sub_feature { background: #3d1e5c; color: #bc8cff; }
+        .confidence-tag.docs_only { background: #161b22; color: #8b949e; }
+        .confidence-tag.low { background: #3d1e1e; color: #f47067; }
+        /* Source pages */
+        .prov-pages { list-style: none; padding: 0; margin: 4px 0 0 0; }
+        .prov-pages li {
+            font-size: 0.75rem;
+            padding: 2px 0;
+            color: #8b949e;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .prov-pages li::before {
+            content: '';
+            display: inline-block;
+            width: 4px; height: 4px;
+            background: #30363d;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+        .prov-pages a { color: #58a6ff; text-decoration: none; font-size: 0.73rem; word-break: break-all; }
+        .prov-pages a:hover { text-decoration: underline; }
+        .prov-pages .page-title { color: #6e7681; font-size: 0.68rem; }
+        /* Issues */
+        .prov-issue {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            background: #3d1e1e;
+            color: #f47067;
+            margin: 2px 4px 2px 0;
+        }
+        /* Group path breadcrumb */
+        .group-path {
+            font-size: 0.73rem;
+            color: #6e7681;
+        }
+        .group-path span { color: #8b949e; }
+        .group-path .sep { color: #30363d; margin: 0 4px; }
+        /* Sub-features list */
+        .sf-list { margin: 6px 0 0 0; padding: 0; list-style: none; }
+        .sf-list li {
+            font-size: 0.73rem;
+            color: #8b949e;
+            padding: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sf-list .sf-name { color: #e6edf3; }
+
+        /* Cross-reference styling */
+        .xref-list { margin: 0; padding: 0; list-style: none; }
+        .xref-item {
+            font-size: 0.73rem;
+            color: #8b949e;
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            background: #1c2333;
+            border-left: 3px solid #58a6ff;
+            border-radius: 0 4px 4px 0;
+        }
+        .xref-label { color: #6e7681; }
+        .xref-name { color: #e6edf3; font-weight: 500; }
+        .xref-page { color: #6e7681; font-size: 0.68rem; }
+        .xref-page a { color: #58a6ff; text-decoration: none; font-size: 0.68rem; }
+        .xref-page a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <h1>Databricks Feature Preview Status Tracker</h1>
     <p class="subtitle">Interactive view of Databricks preview features across workspace and account scopes. Click any row to expand discussion.<br>
         Made by <a href="https://cauchy.io" style="color:#58a6ff; text-decoration:none;">Cauchy</a>, a Databricks Partner.</p>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="features">Features</button>
+        <button class="tab-btn" data-tab="changelog">Changelog</button>
+        <a href="provenance.html" class="tab-btn" style="text-decoration:none;">Decision Tree Overview</a>
+    </div>
+
+    <div id="tab-features" class="tab-content active">
 
     <div class="disclaimer">
         <strong>Disclaimer:</strong> This is an independent, automated aggregation of Databricks preview feature information.
@@ -492,11 +782,20 @@
         <tbody></tbody>
     </table>
 
+    </div><!-- end tab-features -->
+
+    <div id="tab-changelog" class="tab-content">
+        <div class="changelog-container" id="changelogContent">
+            <p style="color:#8b949e;">Loading changelog...</p>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
     <script>
         // Store raw data globally so child rows can access it
         let featureData = [];
+        let provenanceData = {};
         const filterState = { category: new Set(), status: new Set(), source: new Set(), risk: new Set() };
 
         function statusBadge(status) {
@@ -573,12 +872,200 @@
             return rows;
         }
 
+        function nameSourceTag(source) {
+            const labels = {
+                page_title: 'Page Title',
+                nav_tree: 'Nav Tree',
+                generic_prefix: 'Generic + Parent',
+                ai_function_norm: 'AI Function',
+                name_override: 'Manual Override',
+                api_display_name: 'Preview API',
+                llm_sub_feature: 'LLM Sub-feature',
+            };
+            let cls = '';
+            if (source === 'name_override') cls = ' override';
+            else if (source === 'llm_sub_feature') cls = ' llm';
+            else if (source === 'api_display_name') cls = ' api';
+            return `<span class="name-source-tag${cls}">${labels[source] || source}</span>`;
+        }
+
+        function trailStatusBadge(status) {
+            if (!status) return '-';
+            const s = status.toUpperCase().replace(/_/g, ' ');
+            const sn = status.toUpperCase().replace(/ /g, '_');
+            let cls = 'badge-beta';
+            if (sn === 'GA' || sn === 'GENERALLY_AVAILABLE') cls = 'badge-ga';
+            else if (sn.includes('PUBLIC_PREVIEW') || sn === 'PUBLIC_PREVIEW') cls = 'badge-public-preview';
+            else if (sn.includes('BETA') || sn === 'BETA') cls = 'badge-beta';
+            else if (sn.includes('PRIVATE_PREVIEW')) cls = 'badge-private-preview';
+            else if (sn.includes('EXPERIMENTAL')) cls = 'badge-experimental';
+            else if (sn.includes('GA_SOON')) cls = 'badge-ga-soon';
+            return `<span class="badge ${cls}" style="font-size:0.68rem;padding:1px 6px;">${s}</span>`;
+        }
+
+        function buildProvenanceSection(prov) {
+            let html = '';
+
+            // --- Name Source ---
+            html += `<div class="prov-section">`;
+            html += `<div class="prov-section-title">Name Resolution</div>`;
+            html += `<div style="display:flex;align-items:center;gap:10px;">`;
+            html += `<span style="font-size:0.75rem;color:#8b949e;">Source:</span>`;
+            html += nameSourceTag(prov.name_source);
+            html += `<span style="font-size:0.7rem;color:#6e7681;">${prov.name_source_label}</span>`;
+            html += `</div></div>`;
+
+            // --- Status Trail ---
+            const trail = prov.status_trail || [];
+            if (trail.length > 0) {
+                html += `<div class="prov-section">`;
+                html += `<div class="prov-section-title">Status Decision Path</div>`;
+                html += `<div class="trail-pipeline">`;
+                trail.forEach((node, i) => {
+                    if (i > 0) html += `<div class="trail-connector"></div>`;
+                    const cls = node.winning ? ' winning' : '';
+                    html += `<div class="trail-node${cls}">`;
+                    html += `<div class="trail-node-label">${node.label}</div>`;
+                    html += `<div class="trail-node-value">${trailStatusBadge(node.status)}</div>`;
+                    if (node.detail) {
+                        html += `<div class="trail-node-detail">${node.detail}</div>`;
+                    }
+                    html += `</div>`;
+                });
+                html += `</div>`; // end pipeline
+
+                // Sub-features if present
+                const llmNode = trail.find(n => n.source === 'llm_verdict' && n.sub_features);
+                if (llmNode) {
+                    html += `<div style="margin-top:10px;">`;
+                    html += `<div style="font-size:0.7rem;color:#8b949e;margin-bottom:4px;">LLM-identified sub-features:</div>`;
+                    html += `<ul class="sf-list">`;
+                    llmNode.sub_features.forEach(sf => {
+                        html += `<li><span class="sf-name">${sf.name}</span> ${trailStatusBadge(sf.status)}</li>`;
+                    });
+                    html += `</ul></div>`;
+                }
+                html += `</div>`; // end section
+            }
+
+            // --- Cross-References ---
+            if (prov.cross_references && prov.cross_references.length) {
+                html += `<div class="prov-section">`;
+                html += `<div class="prov-section-title">Cross-References</div>`;
+                html += `<div style="font-size:0.72rem;color:#8b949e;margin-bottom:6px;">This feature was also independently identified on other pages, confirming its status.</div>`;
+                html += `<ul class="xref-list">`;
+                prov.cross_references.forEach(xref => {
+                    html += `<li class="xref-item">`;
+                    html += `<span class="xref-label">Also listed as</span> `;
+                    html += `<span class="xref-name">${xref.mentioned_as}</span>`;
+                    if (xref.status) html += ` ${trailStatusBadge(xref.status)}`;
+                    html += `<br>`;
+                    if (xref.page_url) {
+                        html += `<span class="xref-page">on <a href="${xref.page_url}" target="_blank" rel="noopener">${xref.page_title || xref.page_url}</a></span>`;
+                    } else if (xref.page_title) {
+                        html += `<span class="xref-page">on ${xref.page_title}</span>`;
+                    }
+                    html += `</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            // --- Confidence + Group Path ---
+            html += `<div class="prov-section">`;
+            html += `<div class="prov-section-title">Classification</div>`;
+
+            // Confidence
+            const conf = prov.status_confidence || 'unknown';
+            html += `<div class="confidence-row">`;
+            html += `<span class="confidence-label">Confidence:</span>`;
+            html += `<span class="confidence-tag ${conf}">${conf.replace(/_/g, ' ')}</span>`;
+            html += `<span style="font-size:0.7rem;color:#6e7681;">${prov.confidence_reason}</span>`;
+            html += `</div>`;
+
+            // Group path
+            if (prov.group_path) {
+                const parts = prov.group_path.split(' > ');
+                html += `<div style="margin-top:8px;">`;
+                html += `<span class="confidence-label">Group path:</span> `;
+                html += `<span class="group-path">`;
+                html += parts.map(p => `<span>${p}</span>`).join('<span class="sep">&rsaquo;</span>');
+                html += `</span></div>`;
+            }
+
+            // Sources
+            if (prov.sources && prov.sources.length) {
+                html += `<div style="margin-top:6px;">`;
+                html += `<span class="confidence-label">Data sources:</span> `;
+                html += prov.sources.map(s => `<span style="font-size:0.73rem;color:#e6edf3;">${s}</span>`).join(', ');
+                html += `</div>`;
+            }
+
+            // GA Soon flag
+            if (prov.ga_soon) {
+                html += `<div style="margin-top:6px;">`;
+                html += `<span class="badge badge-ga-soon" style="font-size:0.68rem;padding:1px 6px;">GA SOON</span>`;
+                html += `<span style="font-size:0.7rem;color:#6e7681;margin-left:6px;">API signals GA is approaching</span>`;
+                html += `</div>`;
+            }
+
+            // Issues
+            if (prov.issues && prov.issues.length) {
+                html += `<div style="margin-top:8px;">`;
+                html += `<span class="confidence-label">Issues:</span> `;
+                prov.issues.forEach(iss => {
+                    html += `<span class="prov-issue">${iss}</span>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `</div>`; // end classification section
+
+            // --- Source Pages ---
+            if (prov.pages && prov.pages.length) {
+                html += `<div class="prov-section">`;
+                html += `<div class="prov-section-title">Source Pages (${prov.pages.length})</div>`;
+                html += `<ul class="prov-pages">`;
+                prov.pages.forEach((url, i) => {
+                    const title = (prov.page_titles && prov.page_titles[i]) ? prov.page_titles[i] : '';
+                    html += `<li><a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+                    if (title) html += ` <span class="page-title">${title}</span>`;
+                    html += `</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            // --- API metadata ---
+            if (prov.api) {
+                html += `<div class="prov-section">`;
+                html += `<div class="prov-section-title">Preview API Match</div>`;
+                html += `<div style="font-size:0.73rem;color:#8b949e;">`;
+                html += `<strong style="color:#e6edf3;">Feature key:</strong> ${prov.api.feature_name}`;
+                html += ` &nbsp;|&nbsp; <strong style="color:#e6edf3;">Display name:</strong> ${prov.api.display_name}`;
+                html += ` &nbsp;|&nbsp; <strong style="color:#e6edf3;">Scope:</strong> ${prov.api.scope}`;
+                if (prov.api.docs_link) {
+                    html += `<br><strong style="color:#e6edf3;">API docs link:</strong> <a href="${prov.api.docs_link}" target="_blank" rel="noopener" style="color:#58a6ff;font-size:0.72rem;">${prov.api.docs_link}</a>`;
+                }
+                html += `</div></div>`;
+            }
+
+            return html;
+        }
+
         function buildChildRow(d) {
             const docLink = d.url
                 ? `<div class="detail-block"><strong>Docs:</strong> <a href="${d.url}" target="_blank" rel="noopener">${d.url}</a></div>`
                 : '';
             const giscusId = `giscus-${btoa(d.feature).replace(/[^a-zA-Z0-9]/g, '')}`;
             const discussPageLink = `discuss.html?feature=${encodeURIComponent(d.feature)}`;
+            const provId = `prov-${btoa(d.feature).replace(/[^a-zA-Z0-9]/g, '')}`;
+            const prov = provenanceData[d.feature];
+            const provToggle = prov
+                ? `<button class="prov-toggle" data-prov-id="${provId}" type="button">
+                     <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8.5 1.5a1 1 0 1 0-1 0V5H4a.5.5 0 0 0-.5.5v1A.5.5 0 0 0 4 7h1.5v1.5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V7H9a.5.5 0 0 0 .5-.5v-1A.5.5 0 0 0 9 5H8.5V1.5zM2 10.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-9z"/></svg>
+                     Decision Trail
+                   </button>
+                   <div class="prov-panel" id="${provId}">${buildProvenanceSection(prov)}</div>`
+                : '';
             return `
                 <div class="child-content">
                     <div class="feature-detail">
@@ -589,6 +1076,7 @@
                     </div>
                     ${docLink}
                     <div class="feature-description">${d.description}</div>
+                    ${provToggle}
                     <div class="discuss-header">Discussion</div>
                     <div id="${giscusId}"></div>
                     <a class="open-discuss" href="${discussPageLink}">Open full discussion page &rarr;</a>
@@ -622,6 +1110,12 @@
 
         $(async function () {
             featureData = await loadCSV();
+
+            // Load provenance detail (graceful degradation if missing)
+            try {
+                const provResp = await fetch('features_detail.json');
+                if (provResp.ok) provenanceData = await provResp.json();
+            } catch(e) { /* provenance not available */ }
 
             // Derive unique values and counts for chip filters
             const categories = [...new Set(featureData.map(d => d.category))].sort();
@@ -778,6 +1272,17 @@
                 }
             });
 
+            // Provenance trail toggle
+            $('#features tbody').on('click', '.prov-toggle', function (e) {
+                e.stopPropagation();
+                const provId = this.dataset.provId;
+                const panel = document.getElementById(provId);
+                if (panel) {
+                    panel.classList.toggle('visible');
+                    this.classList.toggle('active');
+                }
+            });
+
             // Multi-select chip filters: OR within group, AND between groups
             function applyFilters() {
                 const esc = $.fn.dataTable.util.escapeRegex;
@@ -888,6 +1393,94 @@
 
             restoreFromURL();
         });
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+                if (this.dataset.tab === 'changelog' && !window._changelogLoaded) {
+                    loadChangelog();
+                }
+            });
+        });
+
+        // Changelog parser and renderer
+        async function loadChangelog() {
+            window._changelogLoaded = true;
+            const container = document.getElementById('changelogContent');
+            try {
+                const resp = await fetch('CHANGELOG.md');
+                const text = await resp.text();
+                container.innerHTML = renderChangelog(text);
+            } catch (e) {
+                container.innerHTML = '<p style="color:#f85149;">Failed to load CHANGELOG.md</p>';
+            }
+        }
+
+        function renderChangelog(md) {
+            const lines = md.split('\n');
+            let html = '';
+            let inEntry = false;
+            let currentSection = '';
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                // Date header (## YYYY-MM-DD)
+                const dateMatch = line.match(/^## (\d{4}-\d{2}-\d{2})$/);
+                if (dateMatch) {
+                    if (inEntry) html += '</div>';
+                    html += `<div class="changelog-entry"><h2>${dateMatch[1]}</h2>`;
+                    inEntry = true;
+                    currentSection = '';
+                    continue;
+                }
+
+                // Summary line (bold text after date)
+                if (inEntry && line.startsWith('**') && line.includes('features tracked')) {
+                    html += `<div class="changelog-summary">${line.replace(/\*\*/g, '')}</div>`;
+                    continue;
+                }
+
+                // Section header (### ...)
+                const sectionMatch = line.match(/^### (.+)$/);
+                if (sectionMatch) {
+                    currentSection = sectionMatch[1].toLowerCase();
+                    html += `<h3>${sectionMatch[1]}</h3><ul>`;
+                    continue;
+                }
+
+                // Separator
+                if (line.match(/^---\s*$/)) {
+                    if (currentSection) { html += '</ul>'; currentSection = ''; }
+                    if (inEntry) { html += '</div>'; inEntry = false; }
+                    continue;
+                }
+
+                // List items
+                if (line.startsWith('- ') && inEntry) {
+                    let cls = '';
+                    if (currentSection.includes('new')) cls = 'new-feature';
+                    else if (currentSection.includes('removed')) cls = 'removed';
+                    else if (currentSection.includes('status') || currentSection.includes('transition')) cls = 'status-change';
+
+                    let content = line.slice(2);
+                    // Convert markdown links to HTML
+                    content = content.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+                    // Style arrows
+                    content = content.replace(/→/g, '<span class="transition-arrow">→</span>');
+
+                    html += `<li class="${cls}">${content}</li>`;
+                    continue;
+                }
+            }
+            if (currentSection) html += '</ul>';
+            if (inEntry) html += '</div>';
+            return html;
+        }
     </script>
 
 </body>

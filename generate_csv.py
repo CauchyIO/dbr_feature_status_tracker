@@ -3,6 +3,9 @@
 
 import csv
 import re
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
 
 def parse_readme(readme_path):
     with open(readme_path, "r") as f:
@@ -89,6 +92,8 @@ def write_csv(rows, output_path):
 
 
 if __name__ == "__main__":
-    rows = parse_readme("README.md")
-    write_csv(rows, "features.csv")
-    print(f"Wrote {len(rows)} features to features.csv")
+    readme_path = SCRIPT_DIR.parent / "README.md"
+    output_path = SCRIPT_DIR / "features.csv"
+    rows = parse_readme(readme_path)
+    write_csv(rows, output_path)
+    print(f"Wrote {len(rows)} features to {output_path}")
